@@ -18,6 +18,7 @@ import (
 	"github.com/tendermint/tendermint/abci/example/code"
 	"github.com/tendermint/tendermint/abci/example/counter"
 	"github.com/tendermint/tendermint/abci/example/kvstore"
+	"github.com/tendermint/tendermint/abci/example/ticketstore"
 	"github.com/tendermint/tendermint/abci/server"
 	servertest "github.com/tendermint/tendermint/abci/tests/server"
 	"github.com/tendermint/tendermint/abci/types"
@@ -58,7 +59,7 @@ var RootCmd = &cobra.Command{
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 
 		switch cmd.Use {
-		case "counter", "kvstore": // for the examples apps, don't pre-run
+		case "counter", "kvstore", "ticketstore": // for the examples apps, don't pre-run
 			return nil
 		case "version": // skip running for version command
 			return nil
@@ -161,6 +162,7 @@ func addCommands() {
 	RootCmd.AddCommand(counterCmd)
 	addKVStoreFlags()
 	RootCmd.AddCommand(kvstoreCmd)
+	RootCmd.AddCommand(ticketstoreCmd)
 }
 
 var batchCmd = &cobra.Command{
@@ -272,6 +274,14 @@ var kvstoreCmd = &cobra.Command{
 	Long:  "ABCI demo example",
 	Args:  cobra.ExactArgs(0),
 	RunE:  cmdKVStore,
+}
+
+var ticketstoreCmd = &cobra.Command{
+	Use:   "ticketstore",
+	Short: "ABCI demo example",
+	Long:  "ABCI demo example",
+	Args:  cobra.ExactArgs(0),
+	RunE:  cmdTicketStore,
 }
 
 var testCmd = &cobra.Command{
@@ -641,6 +651,31 @@ func cmdKVStore(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	// Stop upon receiving SIGTERM or CTRL-C.
+	tmos.TrapSignal(logger, func() {
+		// Cleanup
+		if err := srv.Stop(); err != nil {
+			logger.Error("Error while stopping server", "err", err)
+		}
+	})
+
+	// Run forever.
+	select {}
+}
+
+func cmdTicketStore(cmd *cobra.Command, args []string) error {
+	app := ticketstore.NewTicketStoreApplication()
+	logger := log.NewTMLogger(log.NewSyncWriter(os.Stdout))
+
+	// Start the listener
+	srv, err := server.NewServer(flagAddress, flagAbci, app)
+	if err != nil {
+		return err
+	}
+	srv.SetLogger(logger.With("module", "abci-server"))
+	if err := srv.Start(); err != nil {
+		return err
+	}
 	// Stop upon receiving SIGTERM or CTRL-C.
 	tmos.TrapSignal(logger, func() {
 		// Cleanup
