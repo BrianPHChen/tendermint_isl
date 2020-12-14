@@ -10,7 +10,7 @@ require (
 	github.com/btcsuite/btcutil v1.0.2
 	github.com/cbergoon/merkletree v0.2.0
 	github.com/confio/ics23/go v0.6.3
-	github.com/cosmos/iavl v0.15.0
+	github.com/cosmos/iavl v0.15.1
 	github.com/ethereum/go-ethereum v1.8.26
 	github.com/fortytw2/leaktest v1.3.0
 	github.com/go-kit/kit v0.10.0
@@ -31,7 +31,6 @@ require (
 	github.com/snikch/goodman v0.0.0-20171125024755-10e37e294daa
 	github.com/spf13/cobra v1.1.1
 	github.com/spf13/viper v1.7.1
-	github.com/square/certstrap v1.2.0 // indirect
 	github.com/stretchr/testify v1.6.1
 	github.com/tendermint/tm-db v0.6.3
 	golang.org/x/crypto v0.0.0-20201117144127-c1f2f97bffc9
