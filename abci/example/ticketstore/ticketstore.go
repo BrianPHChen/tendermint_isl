@@ -32,9 +32,7 @@ type State struct {
 	rootHash []byte
 }
 
-type Model struct {
-	weight float64
-}
+type Model string
 
 type Snapshot struct {
 	ready bool
@@ -44,29 +42,30 @@ type Snapshot struct {
 
 type ModelTx struct {
 	Round		uint64	`json:"round"`
-	Weight		float64 `json:"weight"`
 	CID			uint64 	`json:"cid"`
+	Model       string  `json: "model"`
 	Signature 	string 	`json:"signature"`
 }
 
 func NewTicketStoreApplication() *TicketStoreApplication {
 	return &TicketStoreApplication{
-		state: State{ aggregatedModel: Model{ weight: 0.0 },
+		state: State{ aggregatedModel: "not initialized",
 					  historyModel: make( map[uint64]Snapshot ),
-					  clientsNumber: 4,
+					  clientsNumber: 1,
 					},
 		}
 }
 
 func (app *TicketStoreApplication) Info(req types.RequestInfo) types.ResponseInfo {
 	return types.ResponseInfo{
-		Data:             fmt.Sprintf("{\"round\":%v, \"model\":%v}", app.state.round, app.state.aggregatedModel.weight),
+		Data:             fmt.Sprintf(`{round: %v, model: %v}`, app.state.round, app.state.aggregatedModel),
 		LastBlockHeight:  int64(app.state.height),
 		LastBlockAppHash: app.state.rootHash,
 	}
 }
 
 func (app *TicketStoreApplication) DeliverTx(tx types.RequestDeliverTx) types.ResponseDeliverTx {
+	fmt.Printf("Debug0: %v\n", tx)
 	var modelTx ModelTx
 	err := json.Unmarshal(tx.Tx, &modelTx)
 
@@ -97,7 +96,8 @@ func (app *TicketStoreApplication) DeliverTx(tx types.RequestDeliverTx) types.Re
 			Log: fmt.Sprint(ErrConflict)}
 	}
 	app.state.historyModel[nextRound].update[cid] = true
-	app.state.historyModel[nextRound].localModels[cid] = Model{weight: modelTx.Weight}
+	app.state.historyModel[nextRound].localModels[cid] = Model(modelTx.Model)
+	fmt.Printf("Debug1: %v\n", types.ResponseDeliverTx{Code: codeTypeOK})
 	return types.ResponseDeliverTx{Code: codeTypeOK}
 }
 
@@ -109,7 +109,9 @@ func (app *TicketStoreApplication) Commit() (resp types.ResponseCommit) {
 	allClientsUpdate := true
 	nextRound := app.state.round + 1
 
+	//fmt.Printf("Update Status: \n")
 	for i := 0 ; i < app.state.clientsNumber; i++ {
+		//fmt.Printf("CID %d: %v\n", i, app.state.historyModel[nextRound].update[uint64(i)])
 		if app.state.historyModel[nextRound].update[uint64(i)] == false {
 			allClientsUpdate = false
 		}
@@ -118,7 +120,7 @@ func (app *TicketStoreApplication) Commit() (resp types.ResponseCommit) {
 	modelsNextRound := app.state.historyModel[nextRound].localModels
 
 	if allClientsUpdate {
-		app.state.aggregatedModel = Model{weight: AggregateModel(modelsNextRound, app.state.clientsNumber)}
+		app.state.aggregatedModel = AggregateModel(modelsNextRound, app.state.clientsNumber)
 		app.state.round++
 	}
 
@@ -127,15 +129,11 @@ func (app *TicketStoreApplication) Commit() (resp types.ResponseCommit) {
 }
 
 func (app *TicketStoreApplication) Query(reqQuery types.RequestQuery) types.ResponseQuery {
-	fmt.Printf("Debug: %v\n", string(reqQuery.Data))
-	fmt.Printf("Debug: %v\n", reqQuery.Path)
-	fmt.Printf("Debug: %v\n", string(reqQuery.Height))
-	fmt.Printf("Debug: %v\n", reqQuery.Prove)
 	switch reqQuery.Path {
 	case "round":
 		return types.ResponseQuery{Value: []byte(fmt.Sprint(app.state.round))}
-	case "weight":
-		return types.ResponseQuery{Value: []byte(fmt.Sprint(app.state.aggregatedModel.weight))}
+	case "model":
+		return types.ResponseQuery{Value: []byte(fmt.Sprint(app.state.aggregatedModel))}
 	case "clients":
 		return types.ResponseQuery{Value: []byte(fmt.Sprint(app.state.clientsNumber))}
 	default:
@@ -143,10 +141,6 @@ func (app *TicketStoreApplication) Query(reqQuery types.RequestQuery) types.Resp
 	}
 }
 
-func AggregateModel(localModels map[uint64]Model, clientsNumber int) (float64) {
-	sum := 0.0
-	for i := 0; i < clientsNumber; i++ {
-		sum += localModels[uint64(i)].weight
-	}
-	return sum / float64(clientsNumber)
+func AggregateModel(localModels map[uint64]Model, clientsNumber int) (Model) {
+	return localModels[0]
 }
