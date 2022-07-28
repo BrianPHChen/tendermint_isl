@@ -3,26 +3,25 @@ module github.com/tendermint/tendermint
 go 1.15
 
 require (
-	github.com/BurntSushi/toml v0.3.1
+	github.com/BurntSushi/toml v1.1.0
 	github.com/ChainSafe/go-schnorrkel v0.0.0-20200405005733-88cbf1b4c40d
 	github.com/Workiva/go-datastructures v1.0.52
 	github.com/btcsuite/btcd v0.21.0-beta
 	github.com/btcsuite/btcutil v1.0.2
-	github.com/cbergoon/merkletree v0.2.0
 	github.com/confio/ics23/go v0.6.3
 	github.com/cosmos/iavl v0.15.0
-	github.com/ethereum/go-ethereum v1.8.26
 	github.com/fortytw2/leaktest v1.3.0
 	github.com/go-kit/kit v0.10.0
 	github.com/go-logfmt/logfmt v0.5.0
 	github.com/gogo/protobuf v1.3.1
-	github.com/golang/protobuf v1.4.3
+	github.com/golang/protobuf v1.5.2
 	github.com/gorilla/websocket v1.4.2
 	github.com/gtank/merlin v0.1.1
 	github.com/hdevalence/ed25519consensus v0.0.0-20200813231810-1694d75e712a
+	github.com/kr/text v0.2.0 // indirect
 	github.com/libp2p/go-buffer-pool v0.0.2
-	github.com/miguelmota/go-solidity-sha3 v0.1.0
 	github.com/minio/highwayhash v1.0.1
+	github.com/mitchellh/mapstructure v1.4.1 // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.8.0
 	github.com/rcrowley/go-metrics v0.0.0-20200313005456-10cdbea86bc0
@@ -31,10 +30,13 @@ require (
 	github.com/snikch/goodman v0.0.0-20171125024755-10e37e294daa
 	github.com/spf13/cobra v1.1.1
 	github.com/spf13/viper v1.7.1
-	github.com/square/certstrap v1.2.0 // indirect
-	github.com/stretchr/testify v1.6.1
+	github.com/stretchr/testify v1.7.2
+	github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7 // indirect
 	github.com/tendermint/tm-db v0.6.3
-	golang.org/x/crypto v0.0.0-20201117144127-c1f2f97bffc9
-	golang.org/x/net v0.0.0-20200822124328-c89045814202
+	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
+	golang.org/x/net v0.0.0-20220607020251-c690dde0001d
+	golang.org/x/xerrors v0.0.0-20220517211312-f3a8303e98df // indirect
 	google.golang.org/grpc v1.33.2
+	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
+	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
